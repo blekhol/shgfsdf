@@ -1,60 +1,103 @@
-import './style.css'
-import heroImg from './assets/hero.png'
-import typescriptLogo from './assets/typescript.svg'
-import viteLogo from './assets/vite.svg'
-import { setupCounter } from './counter.ts'
+import type { Bejegyzes, NewBejegyzes } from "./Bejegyzes";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${typescriptLogo}" class="framework" alt="TypeScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.ts</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+const URL = "https://retoolapi.dev/WJgP6b/data";
 
-<div class="ticks"></div>
+document.addEventListener("DOMContentLoaded", async () => {
+  Load();
+  document.getElementById("hangulatForm")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    Hozzaadas();
+  });
+});
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://www.typescriptlang.org" target="_blank">
-          <img class="button-icon" src="${typescriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+async function Load() {
+  const response = await fetch(URL);
+  const data: Bejegyzes[] = await response.json();
+  
+  if (!response.ok) {
+    console.error("Nem sikerült lekérdezni");
+    return;
+  }
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+  const table = document.getElementById("content") as HTMLTableElement;
+  table.innerText = "";
+  
+  for (const bejegyzes of data) {
+    const row = document.createElement("tr");
+
+    const date = document.createElement("td");
+    date.textContent = bejegyzes.date.toString();
+    
+    const hangulat = document.createElement("td");
+    hangulat.textContent = bejegyzes.emoji;
+    
+    const desc = document.createElement("td");
+    desc.textContent = bejegyzes.description.toString();
+    
+    const muveletek = document.createElement("td");
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "Szerkesztés";
+    editBtn.classList.add("btn");
+    editBtn.classList.add("btn-primary");
+    editBtn.addEventListener("click", () => Edit(bejegyzes.id))
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "Törlés";
+    deleteBtn.classList.add("btn");
+    deleteBtn.classList.add("btn-danger");
+    deleteBtn.addEventListener("click", () => Delete(bejegyzes.id));
+    muveletek.appendChild(editBtn);
+    muveletek.appendChild(deleteBtn);
+
+    row.appendChild(date);
+    row.appendChild(hangulat);
+    row.appendChild(desc);
+    row.appendChild(muveletek);
+    table.appendChild(row);
+  }
+}
+
+async function Hozzaadas() {
+  const form = document.getElementById("hangulatForm") as HTMLFormElement;
+  const data = new FormData(form);
+
+  const bejegyzes: NewBejegyzes = {
+    date: new Date().toDateString(),
+    emoji: data.get("hangulat") as string,
+    description: data.get("description") as string
+  };
+
+  const response = await fetch(URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(bejegyzes)
+  });
+
+  if (!response.ok) {
+    console.error("Nem sikerült hozzáadni");
+    return;
+  }
+
+  form.reset();
+  Load();
+}
+
+async function Delete(id: number) {
+  const response = await fetch(`${URL}/${id}`, {
+    method: "DELETE"
+  });
+
+  if (!response.ok) {
+    console.error("Nem sikerült törölni");
+    return;
+  }
+
+  Load();
+}
+
+async function Edit(id: number) {
+  
+}

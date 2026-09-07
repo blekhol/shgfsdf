@@ -4,10 +4,38 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>shgfsdf</title>
+    <title>Hangulatnapló</title>
   </head>
   <body>
-    <div id="app"></div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="add.html">Új bejegyzés</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Bejegyzések</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Statisztikák</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <h1>Bejegyzések</h1>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Dátum</th>
+          <th>Hangulat</th>
+          <th>Leírás</th>
+          <th>Műveletek</th>
+        </tr>
+      </thead>
+      <tbody id="content">
+      </tbody>
+    </table>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
