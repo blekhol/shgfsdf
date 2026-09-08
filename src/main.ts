@@ -1,5 +1,6 @@
 import type { Bejegyzes, NewBejegyzes } from "./Bejegyzes";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "chart.js";
 
 const URL = "https://retoolapi.dev/WJgP6b/data";
 
@@ -9,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     event.preventDefault();
     Hozzaadas();
   });
+  (document.getElementById("szerkesztesSubmit") as HTMLButtonElement).disabled = true;
 });
 
 
@@ -56,6 +58,17 @@ async function Load() {
     row.appendChild(muveletek);
     table.appendChild(row);
   }
+
+  const hozzaadRow = document.createElement("tr");
+  const hozzaadCell = document.createElement("td");
+  const hozzaadBtn = document.createElement("button");
+  hozzaadBtn.textContent = "Új bejegyzés hozzáadása";
+  hozzaadBtn.addEventListener("click", () => { window.location.href = "add.html" });
+  hozzaadBtn.classList.add("btn");
+  hozzaadBtn.classList.add("btn-primary");
+  hozzaadCell.appendChild(hozzaadBtn);
+  hozzaadRow.appendChild(hozzaadCell);
+  table.appendChild(hozzaadRow);
 }
 
 async function Hozzaadas() {
@@ -82,22 +95,85 @@ async function Hozzaadas() {
   }
 
   form.reset();
-  Load();
+  alert("Sikeres mentés");
 }
 
 async function Delete(id: number) {
-  const response = await fetch(`${URL}/${id}`, {
-    method: "DELETE"
-  });
+  const c = confirm("Biztosan törölni szeretné?");
+  if (c) {
+    const response = await fetch(`${URL}/${id}`, {
+      method: "DELETE"
+    });
 
-  if (!response.ok) {
-    console.error("Nem sikerült törölni");
-    return;
+    if (!response.ok) {
+      console.error("Nem sikerült törölni");
+      return;
+    }
+
+    Load();
+    alert("Sikeres törlés");
   }
-
-  Load();
+  else {
+    alert("Nem lett törölve");
+  }
 }
 
 async function Edit(id: number) {
-  
+  window.location.href = "index.html#szerkeszto";
+
+  const getResponse = await fetch(`${URL}/${id}`);
+  if (!getResponse.ok) {
+    console.error("Nem sikerült lekérdezni a bejegyzést");
+    return;
+  }
+  const bejegyzes: Bejegyzes = await getResponse.json();
+
+  const szerkesztForm = document.getElementById("szerkeszto") as HTMLFormElement;
+  const szerkesztData = new FormData(szerkesztForm);
+
+  szerkesztData.append("hangulatSzerkeszto", bejegyzes.emoji);
+  szerkesztData.append("descriptionSzerkeszto", bejegyzes.description);
+  (document.getElementById("hangulatSelectSzerkeszto") as HTMLInputElement).value = bejegyzes.emoji;
+  (document.getElementById("descriptionSzerkeszto") as HTMLInputElement).value = bejegyzes.description;
+
+
+  const bejegyzesDate = bejegyzes.date;
+
+  document.getElementById("szerkeszto")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    EditRequest(id, bejegyzesDate);
+  });
+
+  (document.getElementById("szerkesztesSubmit") as HTMLButtonElement).disabled = false;
 }
+
+async function EditRequest(id: number, date: string) {
+  const szerkesztForm = document.getElementById("szerkeszto") as HTMLFormElement;
+  const szerkesztData = new FormData(szerkesztForm);
+
+  const szerkesztettBejegyzes: Bejegyzes = {
+    id: id,
+    date: date,
+    emoji: szerkesztData.get("hangulatSzerkeszto") as string,
+    description: szerkesztData.get("descriptionSzerkeszto") as string
+  }
+
+  const response = await fetch(`${URL}/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(szerkesztettBejegyzes)
+  });
+
+  if (!response.ok) {
+    console.error("Nem sikerült szerkeszteni");
+    return;
+  }
+
+  (document.getElementById("szerkesztesSubmit") as HTMLButtonElement).disabled = true;
+  szerkesztForm.reset();
+  Load();
+  alert("Sikeresen szerkesztve");
+}
+

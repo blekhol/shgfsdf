@@ -17,7 +17,7 @@
                     <a class="nav-link" href="index.html">Bejegyzések</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Statisztikák</a>
+                    <a class="nav-link" href="stat.html">Statisztikák</a>
                 </li>
             </ul>
         </div>
@@ -36,6 +36,27 @@
       <tbody id="content">
       </tbody>
     </table>
+
+    <h2>Szerkesztő</h2>
+
+    <form id="szerkeszto">
+        <div class="mb-3">
+            <label for="hangulatSelectSzerkeszto" class="form-label">Hangulat:</label>
+            <select type="select" class="form-select" name="hangulatSzerkeszto" id="hangulatSelectSzerkeszto">
+                <option value="😀">😀</option>
+                <option value="😐">😐</option>
+                <option value="😢">😢</option>
+                <option value="😴">😴</option>
+                <option value="😡">😡</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="descriptionSzerkeszto" class="form-label">Description</label>
+            <textarea class="form-control" name="descriptionSzerkeszto" id="descriptionSzerkeszto" rows="3"></textarea>
+        </div>
+        <button type="submit" id="szerkesztesSubmit" class="btn btn-primary">Szerkesztés</button>
+    </form>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
