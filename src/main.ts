@@ -1,16 +1,23 @@
 import type { Bejegyzes, NewBejegyzes } from "./Bejegyzes";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "chart.js";
 
-const URL = "https://retoolapi.dev/WJgP6b/data";
+export const URL = "https://retoolapi.dev/WJgP6b/data";
 
 document.addEventListener("DOMContentLoaded", async () => {
-  Load();
+  if (document.getElementById("content")) {
+    await Load();
+  }
+
+  const szerkesztesBtn = document.getElementById("szerkesztesSubmit") as HTMLButtonElement | null;
+
   document.getElementById("hangulatForm")?.addEventListener("submit", (event) => {
     event.preventDefault();
     Hozzaadas();
   });
-  (document.getElementById("szerkesztesSubmit") as HTMLButtonElement).disabled = true;
+
+  if (szerkesztesBtn) {
+    szerkesztesBtn.disabled = true;
+  }
 });
 
 
